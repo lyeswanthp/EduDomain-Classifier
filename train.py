@@ -212,14 +212,19 @@ val_embeddings = torch.load('./embeddings_val.pth', weights_only=True)
 test_embeddings = torch.load('./embeddings_test.pth', weights_only=True)
 
 train_dataset = EmbeddingDataset(train_embeddings)
-val_dataset = EmbeddingDataset(train_embeddings)
-test_dataset = EmbeddingDataset(train_embeddings)
+val_dataset = EmbeddingDataset(val_embeddings)
+test_dataset = EmbeddingDataset(test_embeddings)
 
 train_loader = DataLoader(train_dataset, batch_size=6, shuffle=True)
-val_loader = DataLoader(train_dataset, batch_size=6, shuffle=True)
-test_loader = DataLoader(train_dataset, batch_size=6, shuffle=True)
+val_loader = DataLoader(val_dataset, batch_size=6, shuffle=False)
+test_loader = DataLoader(test_dataset, batch_size=6, shuffle=False)
 
 train_params = {'epochs': 30, 'optimizer': optimizer, 'loss': loss, 'scheduler': scheduler}
+
+# Save label mappings for inference
+import json
+with open('label_mappings.json', 'w') as f:
+    json.dump({'label2id': label2id, 'id2label': id2label}, f, indent=2)
 
 #classifier.load_state_dict(torch.load('./domainclassifier.pth', weights_only=True))
 train(classifier, train_loader, val_loader, train_params, './domainclassifier')
